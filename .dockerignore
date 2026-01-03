@@ -1,0 +1,30 @@
+# Build outputs
+out/
+bin/
+obj/
+publish/
+
+# IDE files
+.vs/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Test results
+TestResults/
+*.trx
+
+# NuGet packages
+packages/
+*.nupkg
+
+# Logs and temp files
+*.log
+*.tmp
+tmp/
+temp/
+
+# OS files
+.DS_Store
+Thumbs.db

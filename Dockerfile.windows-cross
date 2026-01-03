@@ -1,0 +1,53 @@
+# Cross-compile PowerShell for Windows from Linux
+FROM ubuntu:18.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
+ENV DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
+
+# Install build dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        apt-transport-https ca-certificates curl wget git \
+        software-properties-common build-essential cmake make g++ \
+        libunwind8 libicu60 locales && \
+    locale-gen en_US.UTF-8 && \
+    update-locale LANG=en_US.UTF-8 && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+
+# Install Mono for certificate management
+RUN apt-get update && \
+    apt-get install -y dirmngr gnupg && \
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF && \
+    echo "deb https://download.mono-project.com/repo/ubuntu stable-bionic main" | tee /etc/apt/sources.list.d/mono-official-stable.list && \
+    apt-get update && \
+    apt-get install -y mono-devel && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install .NET Core SDK 2.1.808
+RUN wget https://dot.net/v1/dotnet-install.sh -O /tmp/dotnet-install.sh && \
+    chmod +x /tmp/dotnet-install.sh && \
+    /tmp/dotnet-install.sh --version 2.1.808 --install-dir /usr/share/dotnet && \
+    rm /tmp/dotnet-install.sh && \
+    ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet && \
+    cert-sync /etc/ssl/certs/ca-certificates.crt
+
+# Install PowerShell for build scripts
+RUN wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O /tmp/packages-microsoft-prod.deb && \
+    dpkg -i /tmp/packages-microsoft-prod.deb && \
+    rm /tmp/packages-microsoft-prod.deb && \
+    apt-get update && \
+    apt-get install -y powershell && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /powershell
+COPY . /powershell/
+RUN git config --global --add safe.directory /powershell
+
+ENV DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0
+ENV COMPlus_EnforceEEPolicy=1
+
+ENTRYPOINT ["/bin/bash"]
