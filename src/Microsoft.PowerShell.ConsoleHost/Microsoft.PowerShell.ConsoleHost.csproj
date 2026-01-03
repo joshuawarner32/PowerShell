@@ -16,9 +16,12 @@
     <DefineConstants>$(DefineConstants);CORECLR</DefineConstants>
   </PropertyGroup>
 
+  <!-- DISABLED FOR CROSS-COMPILATION: These are Windows-only files we need -->
+  <!--
   <ItemGroup Condition=" '$(IsWindows)' != 'true' ">
     <Compile Remove="WindowsTaskbarJumpList\*.cs" />
   </ItemGroup>
+  -->
 
   <ItemGroup>
     <Compile Remove="singleshell\installer\EngineInstaller.cs" />

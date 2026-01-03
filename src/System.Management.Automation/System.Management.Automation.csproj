@@ -131,6 +131,8 @@
     <EmbeddedResource Remove="resources\ErrorPackageRemoting.resx" />
   </ItemGroup>
 
+  <!-- DISABLED FOR CROSS-COMPILATION: These are Windows-only files we need -->
+  <!--
   <ItemGroup Condition=" '$(IsWindows)' != 'true' ">
     <Compile Remove="engine\ExtraAdapter.cs" />
     <Compile Remove="engine\ManagementObjectAdapter.cs" />
@@ -140,5 +142,15 @@
     <Compile Remove="engine\remoting\commands\ReceivePSSession.cs" />
     <Compile Remove="engine\remoting\commands\TestPSSessionConfigurationFile.cs" />
   </ItemGroup>
+  -->
+
+  <!-- Remove UNIX-specific files when building for Windows (including cross-compilation) -->
+  <!-- DISABLED: Not needed since UNIX is never defined now -->
+  <!--
+  <ItemGroup Condition=" '$(IsWindows)' == 'true' Or '$(RuntimeIdentifier)' == 'win7-x64' Or '$(RuntimeIdentifier)' == 'win7-x86' Or '$(RuntimeIdentifier)' == 'win-arm' Or '$(RuntimeIdentifier)' == 'win-arm64' ">
+    <Compile Remove="utils\tracing\PSSysLogProvider.cs" />
+    <Compile Remove="utils\tracing\SysLogProvider.cs" />
+  </ItemGroup>
+  -->
 
 </Project>

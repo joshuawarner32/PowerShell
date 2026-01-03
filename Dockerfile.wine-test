@@ -1,0 +1,45 @@
+# Wine testing environment for Windows PowerShell builds
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV WINEDEBUG=-all
+ENV WINEPREFIX=/root/.wine
+# Disable syslog provider to avoid libpsl-native dependency
+ENV PSModuleAnalysisCachePath=/dev/null
+ENV POWERSHELL_TELEMETRY_OPTOUT=1
+
+# Enable 32-bit architecture (Wine needs it)
+RUN dpkg --add-architecture i386
+
+# Add WineHQ repository for newer Wine version
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        software-properties-common \
+        wget \
+        gnupg2 && \
+    mkdir -pm755 /etc/apt/keyrings && \
+    wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key && \
+    wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources
+
+# Install Wine and dependencies (including expect for unbuffer to create pseudo-TTY)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        winehq-stable \
+        winbind \
+        xvfb \
+        ca-certificates \
+        expect \
+        bsdutils && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Initialize Wine prefix
+RUN wine64 wineboot --init && \
+    wineserver -w
+
+# Create directory for PowerShell
+RUN mkdir -p /powershell-test
+
+WORKDIR /powershell-test
+
+# Default command
+CMD ["/bin/bash"]

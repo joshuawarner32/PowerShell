@@ -333,6 +333,8 @@ Fix steps:
     if (-not $SMAOnly -and $Options.Runtime -ne 'fxdependent') {
         # libraries should not have runtime
         $Arguments += "--runtime", $Options.Runtime
+        # Pass RuntimeIdentifier as MSBuild property for cross-compilation scenarios
+        $Arguments += "/property:RuntimeIdentifier=$($Options.Runtime)"
     }
 
     if ($ReleaseTag) {

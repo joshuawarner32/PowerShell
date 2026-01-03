@@ -112,12 +112,17 @@
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);CORECLR</DefineConstants>
     <IsWindows Condition="'$(OS)' == 'Windows_NT'">true</IsWindows>
+    <!-- Check if building for Windows target (cross-compilation scenario) -->
+    <IsWindowsTarget Condition="'$(RuntimeIdentifier)' != '' And ( $(RuntimeIdentifier.StartsWith('win')) Or '$(RuntimeIdentifier)' == 'win-arm' Or '$(RuntimeIdentifier)' == 'win-arm64' )">true</IsWindowsTarget>
   </PropertyGroup>
 
   <!-- Define non-windows, all configuration properties -->
+  <!-- DISABLED FOR CROSS-COMPILATION: We build on Linux but target Windows -->
+  <!--
   <PropertyGroup Condition=" '$(IsWindows)' != 'true' ">
     <DefineConstants>$(DefineConstants);UNIX</DefineConstants>
   </PropertyGroup>
+  -->
 
   <!-- Define all OS, debug configuration properties -->
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -148,4 +153,14 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'CodeCoverage' ">
     <DebugType>full</DebugType>
   </PropertyGroup>
+
+  <!-- Target to add WINDOWS define for Windows targets (cross-compilation) -->
+  <!-- DISABLED: This approach doesn't work reliably due to MSBuild evaluation order -->
+  <!--
+  <Target Name="AddWindowsDefineForCrossCompile" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <DefineConstants Condition=" '$(RuntimeIdentifier)' == 'win7-x64' Or '$(RuntimeIdentifier)' == 'win7-x86' Or '$(RuntimeIdentifier)' == 'win-arm' Or '$(RuntimeIdentifier)' == 'win-arm64' ">$(DefineConstants);WINDOWS</DefineConstants>
+    </PropertyGroup>
+  </Target>
+  -->
 </Project>
